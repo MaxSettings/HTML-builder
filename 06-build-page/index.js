@@ -6,6 +6,7 @@ const distDirPath = path.join(__dirname, 'project-dist');
 const tempPath = path.join(__dirname, 'template.html');
 const componentsPath = path.join(__dirname, 'components');
 const srcStylesDirPath = path.join(__dirname, 'styles');
+const bundlePath = path.join(distDirPath, 'style.css');
 const srcAssetsDirPath = path.join(__dirname, 'assets');
 const distAssetsDirPath = path.join(__dirname, 'project-dist/assets');
 
@@ -60,38 +61,22 @@ const addDistHtmlFile = async () => {
     });
   });
 }
-// Функция создания файла style.css
-const createCssFile = async () => {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(path.join(distDirPath, 'style.css'), '', (err) => {
-      if (err) {
-        return reject(err.message);
-      }
-      resolve();
-    })
-  })
-}
 // Функция добавление стилей в общий файл
-const addStylesToBundle = async () => {
-  await (await fs.promises.readdir(srcStylesDirPath, {withFileTypes: true})).filter(it => it.isFile()).map(it => it.name).forEach(it => {
-    let filePath = path.join(srcStylesDirPath, it);
-    let fileExt = path.extname(filePath);
-    if (fileExt === '.css') {
-      fs.readFile(filePath, 'utf-8', (err, data) => {
-        if (err) {
-          throw err;
-        }
+const createCssBundle = async () => {
+  let bundleStyles = '';
+  const srcFiles = await promises.readdir(srcStylesDirPath, {withFileTypes: true});
 
-        let codeToAdd = `${data}\n`;
-        
-        fs.appendFile(path.join(distDirPath, 'style.css'), codeToAdd, 'utf-8', (err) => {
-          if (err) {
-            throw err;
-          }
-        })
-      });
+  for(let i = 0; i < srcFiles.length; i++) {
+    if (!srcFiles[i].isFile() || path.extname(srcFiles[i].name) !== '.css') {
+      srcFiles.splice(i, 1);
     }
-  })
+  }
+
+  for (let i = 0; i < srcFiles.length; i++) {
+    let filePath = path.join(srcStylesDirPath, srcFiles[i].name);
+    bundleStyles += await promises.readFile(filePath, 'utf-8');
+  }
+  promises.writeFile(bundlePath, bundleStyles);
 }
 // Функция копирования папки
 const copyDir = async (srcDirName, copyDirName) => {
@@ -115,16 +100,14 @@ const copyDir = async (srcDirName, copyDirName) => {
 fs.access(distDirPath, fs.constants.F_OK, (err) => {
   if (err) {
     createDistDir()
-    .then(() => createCssFile())
     .then(() => addDistHtmlFile())
-    .then(() => addStylesToBundle())
+    .then(() => createCssBundle())
     .then(() => copyDir(srcAssetsDirPath, distAssetsDirPath));
   } else {
     deleteDistDir()
     .then(() => createDistDir())
-    .then(() => createCssFile())
     .then(() => addDistHtmlFile())
-    .then(() => addStylesToBundle())
+    .then(() => createCssBundle())
     .then(() => copyDir(srcAssetsDirPath, distAssetsDirPath));
   }
 })
