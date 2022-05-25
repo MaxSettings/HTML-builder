@@ -47,7 +47,7 @@ const addDistHtmlFile = async () => {
 
         let componentReadableStream = fs.createReadStream(path.join(componentsPath, component));
 
-        componentReadableStream.on('data', (chunk) => {
+        componentReadableStream.on('data', async (chunk) => {
 
           template = template.replace(`{{${component.slice(0, component.length - 5)}}}`, chunk);
           
