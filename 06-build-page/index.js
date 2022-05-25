@@ -36,9 +36,9 @@ const createDistDir = async () => {
 const addDistHtmlFile = async () => {
   let templateReadableStream = fs.createReadStream(tempPath, "utf8");
 
-  templateReadableStream.on('data', (chunk) => { 
+  templateReadableStream.on('data', async (chunk) => { 
     template = chunk.toString();
-    fs.readdir(componentsPath, (err, components) => {
+    fs.readdir(componentsPath, async (err, components) => {
       if (err) {
         throw err;
       }
