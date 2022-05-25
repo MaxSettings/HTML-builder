@@ -8,7 +8,7 @@ const copyDir = async (srcDirName, copyDirName) => {
 
   const removeCopyDir = async () => {
     return new Promise((resolve, reject) => {
-      fs.rmdir(copyDirPath, { recursive: true, force: true }, (err) => {
+      fs.rm(copyDirPath, { recursive: true, force: true }, (err) => {
         if (err) {
           return reject(err.message);
         }

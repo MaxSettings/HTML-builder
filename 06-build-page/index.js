@@ -13,7 +13,7 @@ const distAssetsDirPath = path.join(__dirname, 'project-dist/assets');
 // Функция удаления папки project-dist
 const deleteDistDir = async () => {
   return new Promise((resolve, reject) => {
-    fs.rmdir(distDirPath, { recursive: true, force: true }, (err) => {
+    fs.rm(distDirPath, { recursive: true, force: true }, (err) => {
       if (err) {
         return reject(err.message);
       }
